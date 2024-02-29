@@ -10,11 +10,11 @@ terraform {
 
 # Configure the AWS provider
 provider "aws" {
-  region = "us-east-1a"
+  region = "ap-south-1"
 }
 # Creating a VPC
 resource "aws_vpc" "proj-vpc" {
- cidr_block = "172.31.0.0/16"
+ cidr_block = "10.0.0.0/16"
 }
 
 # Create an Internet Gateway
@@ -45,8 +45,8 @@ resource "aws_route_table" "proj-rt" {
 # Setting up the subnet
 resource "aws_subnet" "proj-subnet" {
  vpc_id = aws_vpc.proj-vpc.id
- cidr_block = "172.31.0.0/16"
- availability_zone = "us-east-1a"
+ cidr_block = "10.0.1.0/24"
+ availability_zone = "ap-south-1b"
  tags = {
  Name = "subnet1"
  }
@@ -112,7 +112,7 @@ resource "aws_security_group" "proj-sg" {
 # Creating a new network interface
 resource "aws_network_interface" "proj-ni" {
  subnet_id = aws_subnet.proj-subnet.id
- private_ips = ["172.31.81.220"]
+ private_ips = ["10.0.1.10"]
  security_groups = [aws_security_group.proj-sg.id]
 }
 
@@ -120,16 +120,16 @@ resource "aws_network_interface" "proj-ni" {
 resource "aws_eip" "proj-eip" {
  vpc = true
  network_interface = aws_network_interface.proj-ni.id
- associate_with_private_ip = "172.31.81.220"
+ associate_with_private_ip = "10.0.1.10"
 }
 
 
 # Creating an ubuntu EC2 instance
 resource "aws_instance" "Prod-Server" {
- ami = "ami-0c7217cdde317cfec"
- instance_type = "t2.medium"
- availability_zone = "us-east-1a"
- key_name = "mynewkey"
+ ami = "ami-0ef82eeba2c7a0eeb"
+ instance_type = "t2.micro"
+ availability_zone = "ap-south-1b"
+ key_name = "chefkeypair"
  network_interface {
  device_index = 0
  network_interface_id = aws_network_interface.proj-ni.id
